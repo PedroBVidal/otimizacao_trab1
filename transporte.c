@@ -146,12 +146,11 @@ char* generate_maxeq (int ***rotas, int **pacotes, int n, int depth, int city, i
 		sprintf(p_string,"%d",p);
 
 		strcat(eq,p_string);
-		strcat(eq,"*");
 		strcat(eq,"x");
 		strcat(eq,idx1);
 		strcat(eq,idx2);
 		if (i < (cont_city_routes_departure - 1)){
-			strcat(eq,"+");
+			strcat(eq," + ");
 		}
 
 	}
@@ -164,15 +163,14 @@ char* generate_maxeq (int ***rotas, int **pacotes, int n, int depth, int city, i
 		valor_pac = pacotes[i][0];
 		sprintf(v_pac,"%d",valor_pac);
 
-		strcat(eq,"-");
+		strcat(eq," - ");
+		strcat(eq,v_pac);
 		strcat(eq,"n");
 		strcat(eq,idx1);
-		strcat(eq,"*");
-		strcat(eq,v_pac);
 
 	}
 	
-	
+	strcat(eq,";");	
 	printf("%s\n",eq);
 
 }
@@ -210,7 +208,7 @@ char* generate_eq (int ***rotas, int n, int depth, int city){
 		strcat(eq,idx1);
 		strcat(eq,idx2);
 		if (i < (cont_city_routes_departure - 1)){
-			strcat(eq,"+");
+			strcat(eq," + ");
 		}
 
 		//printf("equation at departures equals %d \n", i);
@@ -219,7 +217,7 @@ char* generate_eq (int ***rotas, int n, int depth, int city){
 	if (cont_city_routes_departure == 0){
 		strcat(eq,"0");
 	}	
-	strcat(eq,"=");
+	strcat(eq," = ");
 	
 	int orig;
 	for (int i = 0; i < cont_city_routes_arrival; i++){
@@ -231,7 +229,7 @@ char* generate_eq (int ***rotas, int n, int depth, int city){
 		strcat(eq,idx1);
 		strcat(eq,idx2);
 		if (i < (cont_city_routes_arrival- 1)){
-			strcat(eq,"+");
+			strcat(eq," + ");
 		}
 
 		//printf("equation at arrival equals %d \n", i);
@@ -242,11 +240,10 @@ char* generate_eq (int ***rotas, int n, int depth, int city){
 		strcat(eq,"0");
 	}
 	
-	//printf("final equation for city %d \n",city+1);
-	//if (cont_city_routes_arrival != 0 && cont_city_routes_departure != 0){
-	//	printf("%s\n",eq);
-	//}
+	strcat(eq,";");
+
 	if (city != 0 && city != n-1){
+		
 		printf("%s\n",eq);
 	}
 
@@ -285,38 +282,36 @@ void generate_products_restric(int ***routes, int **pacotes, int row, int cols, 
 
 			sprintf(pidx_k,"%d", routes[ori_city_idx][dest_city_idx][i+1]);
 			
+			strcat(eq,pidx_k);	
 			strcat(eq,"a");
 			strcat(eq,idx1);
 			strcat(eq,idx2);
 			strcat(eq,"0");
-			strcat(eq,"*");
-			strcat(eq,pidx_k);	
-			strcat(eq,"+");
+			strcat(eq," + ");
 			
+			strcat(eq,pidx_k);	
 			strcat(eq,"a");
 			strcat(eq,idx1);
 			strcat(eq,idx2);
 			strcat(eq,"1");
-			strcat(eq,"*");
-			strcat(eq,pidx_k);	
 			
 			if (j < (m-1)){
-				strcat(eq,"+");
+				strcat(eq," + ");
 			}
 		}
-		strcat(eq,"<=");
+		strcat(eq," <= ");
 		for (int u = 0; u < q; u++){
 			sprintf(idx1,"%d",u+1);
 			sprintf(pidx_k,"%d",pacotes[u][i+1]);
+			strcat(eq,pidx_k);
 			strcat(eq,"n");
 			strcat(eq,idx1);
-			strcat(eq,"*");
-			strcat(eq,pidx_k);
 			if(u < (q-1)){
-				strcat(eq,"+");
+				strcat(eq," + ");
 			}		
 		}
 
+		strcat(eq,";");
 		printf("%s \n", eq);
 		eq[0] = '\0';
 	}
@@ -329,7 +324,7 @@ void generate_products_restric(int ***routes, int **pacotes, int row, int cols, 
 	char restric4[STR_LEN] = "";
 	char restric5[STR_LEN] = "";
 	char restric6[STR_LEN] = "";
-
+		
 	for (int i = 0; i < m; i++){
 		int ori_city_idx = ori_city[i];
 		int dest_city_idx = dest_city[i];
@@ -337,64 +332,81 @@ void generate_products_restric(int ***routes, int **pacotes, int row, int cols, 
 		sprintf(idx2,"%d",dest_city_idx+1);
 		sprintf(f_route,"%d", routes[ori_city_idx][dest_city_idx][0]);	
 
-
 		strcat(restric1,"x");
 		strcat(restric1,idx1);
 		strcat(restric1,idx2);
-		strcat(restric1,"=");
-		strcat(restric1,"a");
-		strcat(restric1,idx1);
-		strcat(restric1,idx2);
-		strcat(restric1,"0");
+		strcat(restric1," >= ");
 		strcat(restric1,"-");
-		strcat(restric1,"a");
+		strcat(restric1,f_route);
+		strcat(restric1,";");	
+		strcat(restric1,"\n");
+		strcat(restric1,"x");
 		strcat(restric1,idx1);
 		strcat(restric1,idx2);
-		strcat(restric1,"1");
+		strcat(restric1," <= ");
+		strcat(restric1,f_route);
+		strcat(restric1,";");
 
-		
+		strcat(restric2,"x");
+		strcat(restric2,idx1);
+		strcat(restric2,idx2);
+		strcat(restric2," = ");
 		strcat(restric2,"a");
 		strcat(restric2,idx1);
 		strcat(restric2,idx2);
 		strcat(restric2,"0");
-		strcat(restric2,">=");	
-		strcat(restric2,"0");
+		strcat(restric2," - ");
+		strcat(restric2,"a");
+		strcat(restric2,idx1);
+		strcat(restric2,idx2);
+		strcat(restric2,"1");
+		strcat(restric2,";");
 
 		strcat(restric3,"a");
 		strcat(restric3,idx1);
 		strcat(restric3,idx2);
 		strcat(restric3,"0");
-		strcat(restric3,"<=");
-		strcat(restric3,f_route);
-		strcat(restric3,"*");
-		strcat(restric3,"y");
-		strcat(restric3,idx1);
-		strcat(restric3,idx2);
+		strcat(restric3," >= ");	
+		strcat(restric3,"0");
+		strcat(restric3,";");
 
 		strcat(restric4,"a");
 		strcat(restric4,idx1);
 		strcat(restric4,idx2);
-		strcat(restric4,"1");
-		strcat(restric4,">=");	
 		strcat(restric4,"0");
+		strcat(restric4," <= ");
+		strcat(restric4,f_route);
+		strcat(restric4,"y");
+		strcat(restric4,idx1);
+		strcat(restric4,idx2);
+		strcat(restric4,";");
 
 		strcat(restric5,"a");
 		strcat(restric5,idx1);
 		strcat(restric5,idx2);
 		strcat(restric5,"1");
-		strcat(restric5,"<=");
-		strcat(restric5,f_route);
-		strcat(restric5,"*");
-		strcat(restric5,"(1-y");
-		strcat(restric5,idx1);
-		strcat(restric5,idx2);
-		strcat(restric5,")");
-		
+		strcat(restric5," >= ");	
+		strcat(restric5,"0");
+		strcat(restric5,";");
 
-		strcat(restric6,"bin ");
+		strcat(restric6,"a");
+		strcat(restric6,idx1);
+		strcat(restric6,idx2);
+		strcat(restric6,"1");
+		strcat(restric6," <= ");
+		strcat(restric6,f_route);
+		strcat(restric6," - ");
+		strcat(restric6,f_route);
 		strcat(restric6,"y");
 		strcat(restric6,idx1);
 		strcat(restric6,idx2);
+		strcat(restric6,";");
+		
+
+		//strcat(restr6c6,"bin ");
+		//strcat(restric6,"y");
+		//strcat(restric6,idx1);
+		//strcat(restric6,idx2);
 		
 
 		printf("%s \n", restric1);
@@ -412,6 +424,41 @@ void generate_products_restric(int ***routes, int **pacotes, int row, int cols, 
 		restric5[0] = '\0';
 		restric6[0] = '\0';
 	}
+	
+	strcat(restric1, "bin ");	
+	for (int i = 0; i < m; i++){
+		int ori_city_idx = ori_city[i];
+		int dest_city_idx = dest_city[i];
+		sprintf(idx1,"%d",ori_city_idx+1);
+		sprintf(idx2,"%d",dest_city_idx+1);
+		strcat(restric1,"y");
+		strcat(restric1,idx1);
+		strcat(restric1,idx2);
+		if (i < (m-1)){
+			strcat(restric1,",");
+		}
+	}
+	strcat(restric1,";");
+
+	/*	
+	strcat(restric2,"int ");	
+	for (int i = 0; i < m; i++){
+		int ori_city_idx = ori_city[i];
+		int dest_city_idx = dest_city[i];
+		sprintf(idx1,"%d",ori_city_idx+1);
+		sprintf(idx2,"%d",dest_city_idx+1);
+		strcat(restric2,"x");
+		strcat(restric2,idx1);
+		strcat(restric2,idx2);
+		if (i < (m-1)){
+			strcat(restric2,",");
+		}
+
+	}
+	strcat(restric2,";");
+	*/	
+	printf("%s \n", restric1);
+	//printf("%s \n", restric2);		
 }
 
 
